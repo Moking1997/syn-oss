@@ -38,6 +38,7 @@ module.exports = class SynOSS {
         })
 
     }
+
     getProgress(type) {
         if (type == 'download') {
             this.downloadProgress.inc()
@@ -77,13 +78,15 @@ module.exports = class SynOSS {
     async Upload(ossPath, localPath) {
         try {
             let result = await this.client.multipartUpload(ossPath, localPath)
-            this.getProgress()
         } catch (e) {
             log("上传错误:", e)
             log("错误文件:", localPath)
             delete this.uploadData[localPath]
             this.uploadError++
-            this.getProgress()
+        } finally {
+            if (this.uploadData) {
+                this.getProgress()
+            }
         }
     }
 
@@ -172,6 +175,7 @@ module.exports = class SynOSS {
             }
         })
     }
+
     /**
      * 文件下载方法
      * @param ossPath 下载后的文件路径
@@ -180,15 +184,18 @@ module.exports = class SynOSS {
     async get(ossPath, localPath) {
         try {
             let result = await this.client.get(ossPath, localPath);
-            this.getProgress('download')
         } catch (e) {
             log('下载失败:', ossPath);
             log('报错信息:', e);
             delete this.downloadData[ossPath]
             this.downloadError++
-            this.getProgress('download')
+        } finally {
+            if (this.downloadData) {
+                this.getProgress('download')
+            }
         }
     }
+
     /**
      * 文件夹下载
      * @param ossPath 下载后的文件路径
@@ -270,6 +277,7 @@ module.exports = class SynOSS {
             log(e);
         }
     }
+
     /**
    * 读取 oss 文件夹目录列表
    * @param ossPath oss的文件夹路径
@@ -303,20 +311,20 @@ module.exports = class SynOSS {
     * 获取取 oss 文件列表信息
     * @param ossPath oss的文件路径
     */
-    async getOssFileList(dir, marker) {
+    async getOssFileList(ossPath, marker) {
         const result = await this.client.list({
-            prefix: dir,
+            prefix: ossPath,
             marker: marker || null
         });
+        log(result.objects)
         result.objects.forEach(obj => {
-
             let name = obj.name
             if (name.substr(-1) != '/') {
                 this.downloadData[name] = obj
             }
         });
         if (result.nextMarker) {
-            await this.getOssFileList(dir, result.nextMarker)
+            await this.getOssFileList(ossPath, result.nextMarker)
         }
     }
 

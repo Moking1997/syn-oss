@@ -14,6 +14,14 @@ async function main() {
         accessKeySecret: '<Your AccessKeySecret>',
         bucket: 'Your bucket name'
     })
+    // getOssFileList(dir, marker)
+    await oss.getOssFileList(ossPath)
+    // readOssDir(ossPath, marker)
+    await oss.readOssDir(ossPath, )
+    // Upload(ossPath, localPath)
+    await oss.Upload('/text.js', './test.js')
+    // get(ossPath, localPath) 
+    await oss.downloadDir('text.js', './test.js')
     // UploadDir(ossDir, localDir) 
     await oss.UploadDir('/test', './test')
     // downloadDir(ossDir, localDir) 

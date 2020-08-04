@@ -52,10 +52,10 @@ module.exports = class SynOSS {
                     if (this.downloadError) {
                         log(`\n有 ${this.downloadError} 个文件下载失败,现在开始重新下载\n`)
                         this.downloadDir(this.ossPath, this.localPath)
+                    } else {
+                        this.isStartDownload = false
                     }
-                    this.isStartDownload = false
-                    this.downloadData = {}
-                    this.downloadError = 0
+
                 })
             }
 
@@ -71,9 +71,6 @@ module.exports = class SynOSS {
                         log(`\n有 ${this.uploadError} 个文件上传失败,现在开始重新上传\n`)
                         this.UploadDir(this.ossPath, this.localPath)
                     }
-                    this.isStartUpload = false
-                    this.uploadData = {}
-                    this.uploadError = 0
                 })
 
             }
@@ -108,6 +105,13 @@ module.exports = class SynOSS {
      * @param localDir 本地文件夹路径
      */
     async UploadDir(ossDir, localDir) {
+        log('开始上传')
+        this.ossPath = ossDir
+        this.localPath = localDir
+        this.uploadError = 0
+        this.uploadLen = 0
+        this.isStartUpload = false
+        this.uploadData = {}
         fs.readdir(localDir, (err, files) => {
             if (err) {
                 console.warn(err)
@@ -127,8 +131,7 @@ module.exports = class SynOSS {
                                     localPath: fileDir,
                                     ossPath: ossDir + fileDir.substr(fileDir.indexOf('/')),
                                 }
-                                log(data)
-                                // this.uploadData[fileDir] = data
+                                this.uploadData[fileDir] = data
                             }
                             if (isDir) {
                                 this.uploadLen--
@@ -137,7 +140,7 @@ module.exports = class SynOSS {
                             let len = Object.keys(this.uploadData).length;
                             if (len == this.uploadLen && !this.isStartUpload) {
                                 this.isStartUpload = true
-                                // this.startUpload()
+                                this.startUpload()
                             }
                         }
                     })
@@ -171,7 +174,6 @@ module.exports = class SynOSS {
                     return `${this.count} / ${this.max}`;
                 }
             });
-            log('开始上传')
             status.start({
                 pattern: '{uptime.green} {spinner.cyan}  |  Total: {upload.percentage}  |  上传进度: {upload.blue.bar} {upload.custom.magenta}'
             });
@@ -217,6 +219,8 @@ module.exports = class SynOSS {
      */
     async downloadDir(ossPath, localPath) {
         log('开始下载')
+        this.downloadData = {}
+        this.downloadError = 0
         this.ossPath = ossPath
         this.localPath = localPath
         this.isStartDownload = true

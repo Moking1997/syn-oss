@@ -67,8 +67,13 @@ module.exports = class SynOSS {
                     if (err) {
                         log(err)
                     }
+                    this.uploadLen = 0
+                    this.uploadData = {}
+                    this.isStartUpload = false
                     if (this.uploadError) {
+                        log(this.uploadError)
                         log(`\n有 ${this.uploadError} 个文件上传失败,现在开始重新上传\n`)
+                        this.uploadError = 0
                         this.UploadDir(this.ossPath, this.localPath)
                     }
                 })
@@ -105,13 +110,9 @@ module.exports = class SynOSS {
      * @param localDir 本地文件夹路径
      */
     async UploadDir(ossDir, localDir) {
-        log('开始上传')
         this.ossPath = ossDir
         this.localPath = localDir
-        this.uploadError = 0
-        this.uploadLen = 0
-        this.isStartUpload = false
-        this.uploadData = {}
+
         fs.readdir(localDir, (err, files) => {
             if (err) {
                 console.warn(err)
@@ -139,6 +140,7 @@ module.exports = class SynOSS {
                             }
                             let len = Object.keys(this.uploadData).length;
                             if (len == this.uploadLen && !this.isStartUpload) {
+                                log('开始上传')
                                 this.isStartUpload = true
                                 this.startUpload()
                             }

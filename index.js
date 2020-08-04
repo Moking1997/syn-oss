@@ -48,6 +48,10 @@ module.exports = class SynOSS {
                     if (err) {
                         log(err)
                     }
+                    if (this.downloadError) {
+                        log(`\n有 ${this.downloadError} 个文件下载失败,现在开始重新下载\n`)
+                        this.downloadDir(this.ossPath, this.localPath)
+                    }
                     this.downloadData = {}
                     this.downloadError = 0
                 })
@@ -202,13 +206,16 @@ module.exports = class SynOSS {
      * @param localPath 本地文件夹路径
      */
     async downloadDir(ossPath, localPath) {
+        log('开始下载')
+        this.ossPath = ossPath
+        this.localPath = localPath
         ossPath = ossPath + '/'
         localPath = localPath + '/'
+        log('同步目录结构中...')
         await this.getOssFileList(ossPath)
         await this.readOssDir(ossPath)
         let dirs = this.downloadData
 
-        // 创建目录结构
         for (let i = 0; i < this.dirList.length; i++) {
             let dir = this.dirList[i];
             dir = dir.replace(ossPath, localPath)
@@ -238,7 +245,6 @@ module.exports = class SynOSS {
                     return `${this.count} / ${this.max}`;
                 }
             });
-            log('开始下载')
             status.start({
                 pattern: '{uptime.green} {spinner.cyan}  |  Total: {download.percentage}  |  下载进度: {download.green.bar} {download.custom.magenta}'
             });
@@ -316,7 +322,6 @@ module.exports = class SynOSS {
             prefix: ossPath,
             marker: marker || null
         });
-        log(result.objects)
         result.objects.forEach(obj => {
             let name = obj.name
             if (name.substr(-1) != '/') {

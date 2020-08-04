@@ -52,8 +52,9 @@ module.exports = class SynOSS {
                     if (this.downloadError) {
                         log(`\n有 ${this.downloadError} 个文件下载失败,现在开始重新下载\n`)
                         this.downloadDir(this.ossPath, this.localPath)
+                    } else {
+                        this.isStartDownload = false
                     }
-                    this.isStartDownload = false
                     this.downloadData = {}
                     this.downloadError = 0
                 })
@@ -70,8 +71,9 @@ module.exports = class SynOSS {
                     if (this.uploadError) {
                         log(`\n有 ${this.uploadError} 个文件上传失败,现在开始重新上传\n`)
                         this.UploadDir(this.ossPath, this.localPath)
+                    } else {
+                        this.isStartUpload = false
                     }
-                    this.isStartUpload = false
                     this.uploadData = {}
                     this.uploadError = 0
                 })

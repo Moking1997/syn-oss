@@ -17,6 +17,7 @@ module.exports = class SynOSS {
         this.uploadError = 0
         this.downloadLen = 0
         this.downloadProgress = null
+        this.isStartDownload = false
         this.downloadData = {}
         this.downloadError = 0
 
@@ -52,6 +53,7 @@ module.exports = class SynOSS {
                         log(`\n有 ${this.downloadError} 个文件下载失败,现在开始重新下载\n`)
                         this.downloadDir(this.ossPath, this.localPath)
                     }
+                    this.isStartDownload = false
                     this.downloadData = {}
                     this.downloadError = 0
                 })
@@ -64,6 +66,10 @@ module.exports = class SynOSS {
                 fs.writeFile('./data/update.json', JSON.stringify(this.uploadData), 'utf8', (err) => {
                     if (err) {
                         log(err)
+                    }
+                    if (this.uploadError) {
+                        log(`\n有 ${this.uploadError} 个文件上传失败,现在开始重新上传\n`)
+                        this.UploadDir(this.ossPath, this.localPath)
                     }
                     this.isStartUpload = false
                     this.uploadData = {}
@@ -88,8 +94,10 @@ module.exports = class SynOSS {
             delete this.uploadData[localPath]
             this.uploadError++
         } finally {
-            if (this.uploadData) {
+            if (this.isStartUpload) {
                 this.getProgress()
+            } else {
+                log(localPath, '上传完成')
             }
         }
     }
@@ -194,8 +202,10 @@ module.exports = class SynOSS {
             delete this.downloadData[ossPath]
             this.downloadError++
         } finally {
-            if (this.downloadData) {
+            if (this.isStartDownload) {
                 this.getProgress('download')
+            } else {
+                log(ossPath, '下载完成')
             }
         }
     }
@@ -209,6 +219,7 @@ module.exports = class SynOSS {
         log('开始下载')
         this.ossPath = ossPath
         this.localPath = localPath
+        this.isStartDownload = true
         ossPath = ossPath + '/'
         localPath = localPath + '/'
         log('同步目录结构中...')

@@ -1,5 +1,6 @@
 const OSS = require("ali-oss")
 const fs = require("fs")
+const os = require('os')
 const path = require('path')
 const status = require('node-status');
 const log = console.log.bind(console)
@@ -20,6 +21,7 @@ module.exports = class SynOSS {
         this.isStartDownload = false
         this.downloadData = {}
         this.downloadError = 0
+        this.UserOS = os.platform()
 
         this._init()
     }
@@ -75,6 +77,8 @@ module.exports = class SynOSS {
                         log(`\n有 ${this.uploadError} 个文件上传失败,现在开始重新上传\n`)
                         this.uploadError = 0
                         this.UploadDir(this.ossPath, this.localPath)
+                    } else {
+                        this.Upload('official/root/webpush.txt', './webpush.txt')
                     }
                 })
 
@@ -127,10 +131,14 @@ module.exports = class SynOSS {
                             let isFile = stats.isFile()
                             let isDir = stats.isDirectory()
                             if (isFile) {
+                                let osspath = ossDir + fileDir.substr(fileDir.indexOf('/'))
+                                if (this.UserOS.includes('win')) {
+                                    osspath = ossDir + fileDir.substr(fileDir.indexOf('\\')).replace(/\\/g, '/')
+                                }
                                 let data = {
                                     md5: md5File.sync(fileDir),
                                     localPath: fileDir,
-                                    ossPath: ossDir + fileDir.substr(fileDir.indexOf('/')),
+                                    ossPath: osspath
                                 }
                                 this.uploadData[fileDir] = data
                             }

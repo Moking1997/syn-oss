@@ -1,6 +1,6 @@
 {
   "name": "syn-oss",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "ali-oss synchro download and upload",
   "main": "index.js",
   "scripts": {

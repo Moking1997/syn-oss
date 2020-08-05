@@ -27,6 +27,7 @@ module.exports = class SynOSS {
     }
 
     _init() {
+        fs.writeFileSync('./webpush.txt', 'oss 事件通知', 'utf8')
         fs.mkdir('./data', e => {
             fs.exists('./data/download.json', function (exists) {
                 if (!exists) {
@@ -370,5 +371,4 @@ module.exports = class SynOSS {
         });
     }
 }
-
 

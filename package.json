@@ -1,6 +1,6 @@
 {
   "name": "syn-oss",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "ali-oss synchro download and upload",
   "main": "index.js",
   "scripts": {
@@ -9,8 +9,7 @@
   "dependencies": {
     "ali-oss": "^6.10.0",
     "md5-file": "^5.0.0",
-    "node-status": "^1.0.0",
-    "oss": "^0.0.1"
+    "node-status": "^1.0.0"
   },
   "repository": {
     "type": "git",
